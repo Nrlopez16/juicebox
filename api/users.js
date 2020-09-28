@@ -1,25 +1,19 @@
-// api/users.js
-const {
-    getUserByUsername
-} = require('../db')
-
 const express = require('express');
 const usersRouter = express.Router();
 const jwt = require('jsonwebtoken');
-
+const {
+    getUserByUsername,
+    getAllUsers,
+    createUser
+} = require('../db')
 
 usersRouter.use((req, res, next) => {
   console.log("A request is being made to /users");
-
-  next(); // THIS IS DIFFERENT
+  next();
 });
 
-const { getAllUsers } = require('../db');
-
-// UPDATE
 usersRouter.get('/', async (req, res) => {
   const users = await getAllUsers();
-
   res.send({
     users
   });
@@ -29,7 +23,6 @@ usersRouter.get('/', async (req, res) => {
 usersRouter.post('/login', async (req, res, next) => {
     const { username, password } = req.body;
   
-    // request must have both
     if (!username || !password) {
       next({
         name: "MissingCredentialsError",
@@ -39,6 +32,7 @@ usersRouter.post('/login', async (req, res, next) => {
   
     try {
       const user = await getUserByUsername(username);
+      console.log(user)
   
       if (user && user.password == password) {
         const token = jwt.sign({ id: user.id, username }, process.env.JWT_SECRET);
